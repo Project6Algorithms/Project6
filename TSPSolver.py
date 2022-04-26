@@ -153,7 +153,7 @@ class TSPSolver:
             population1 = np.append(population1, self.defaultRandomTour().get('soln'))
         solutions = len(population1)
         newPopulation = []
-        for i in range(6000):
+        for i in range(10000):
             minArray = []
             # Selection
             for j in range(len(population1)):
@@ -162,7 +162,6 @@ class TSPSolver:
             parent1 = 0
             parent2 = 0
             states = 0
-            print(minArray)
             first = second = np.inf
             firstIndex = 0
             secondIndex = 0
@@ -174,16 +173,11 @@ class TSPSolver:
                 elif minArray[j] < second:
                     second = minArray[j]
                     secondIndex = j
-            print("Parent1 Cost:")
             parent1 = population1[firstIndex]
             parent2 = population1[secondIndex]
-            print(parent1.cost)
-            print("Parent2 Cost:")
-            print(parent2.cost)
             # Crossover
             child1Route = parent1.route
             child2Route = parent2.route
-            print("Starting crossover")
             for j in range(0, ncities // 2):
                 point = random.randint(1, ncities - 1)
                 if point == child1Route[len(child1Route) - 1] or point == child2Route[len(child2Route) - 1]:
@@ -192,23 +186,17 @@ class TSPSolver:
                 swap1Index = None
                 swap2Index = None
                 for x in range(0, len(child1Route)):
-
                     if child1Route[x]._index == point:
                         swap1Index = x
-
                 for x in range(0, len(child2Route)):
-
                     if child2Route[x]._index == point:
                         swap2Index = x
-                print(swap2Index)
                 child1Route[swap1Index], child1Route[swap2Index] = child1Route[swap2Index], child1Route[swap1Index]
                 child2Route[swap1Index], child2Route[swap2Index] = child2Route[swap2Index], child2Route[swap1Index]
-            print("start mutation")
+
             # Mutation
             index1 = random.randint(1, ncities - 2)
             index2 = random.randint(1, ncities - 2)
-
-            print("indexes assigned")
             child1Route[index1], child1Route[index2] = child1Route[index2], child1Route[index1]
             child1 = TSPSolution(child1Route)
 
@@ -217,16 +205,11 @@ class TSPSolver:
 
             child2Route[index1], child2Route[index2] = child2Route[index2], child2Route[index1]
             child2 = TSPSolution(child2Route)
-            for x in range(len(child2.route)):
-                print(child2.route[x]._index)
+
             states += 2
-            print("Child1 Cost:")
-            print(child1.cost)
-            print("Child2 Cost:")
-            print(child2.cost)
-            print("Starting Pruning")
+
             if child1.cost < parent1.cost or child1.cost < parent2.cost:
-                print("Child1 Added")
+
                 # find swap the least fit in the population array with child1
                 maxArray = []
                 for j in range(len(population1)):
@@ -236,10 +219,10 @@ class TSPSolver:
                 population1 = np.append(population1, child1)
                 solutions += 1
             elif child1.cost > parent1.cost and child1.cost > parent2.cost:
-                print("Child1 Pruned")
+
                 pruned += 1
             if child2.cost < parent1.cost or child2.cost < parent2.cost:
-                print("Child2 Added")
+
                 # find swap the least fit in the population array with child1
                 maxArray = []
                 for j in range(len(population1)):
@@ -249,16 +232,13 @@ class TSPSolver:
                 population1 = np.append(population1, child2)
                 solutions += 1
             elif child2.cost > parent1.cost and child2.cost > parent2.cost:
-                print("Child2 Pruned")
+
                 pruned += 1
         # Finding best solution
         minArray = []
         for j in range(len(population1)):
             minArray.append(population1[j].cost)
-        print(minArray)
         fittestIndex = np.argmin(minArray)
-        print(fittestIndex)
-        print(population1[fittestIndex].cost)
         fittest = population1[fittestIndex]
         if fittestIndex == 0:
             fittest = self.greedy(time_allowance).get('soln')
