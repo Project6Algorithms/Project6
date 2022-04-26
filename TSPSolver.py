@@ -3,11 +3,11 @@
 from which_pyqt import PYQT_VER
 
 if PYQT_VER == 'PYQT5':
-	from PyQt5.QtCore import QLineF, QPointF
+    from PyQt5.QtCore import QLineF, QPointF
 elif PYQT_VER == 'PYQT4':
-	from PyQt4.QtCore import QLineF, QPointF
+    from PyQt4.QtCore import QLineF, QPointF
 else:
-	raise Exception('Unsupported Version of PyQt: {}'.format(PYQT_VER))
+    raise Exception('Unsupported Version of PyQt: {}'.format(PYQT_VER))
 
 import time
 import numpy as np
@@ -17,13 +17,13 @@ import itertools
 
 
 class TSPSolver:
-	def __init__(self, gui_view):
-		self._scenario = None
+    def __init__(self, gui_view):
+        self._scenario = None
 
-	def setupWithScenario(self, scenario):
-		self._scenario = scenario
+    def setupWithScenario(self, scenario):
+        self._scenario = scenario
 
-	''' <summary>
+    ''' <summary>
 		This is the entry point for the default solver
 		which just finds a valid random tour.  Note this could be used to find your
 		initial BSSF.
@@ -34,37 +34,37 @@ class TSPSolver:
 		algorithm</returns> 
 	'''
 
-	def defaultRandomTour(self, time_allowance=60.0):
-		results = {}
-		cities = self._scenario.getCities()
-		ncities = len(cities)
-		foundTour = False
-		count = 0
-		bssf = None
-		start_time = time.time()
-		while not foundTour and time.time() - start_time < time_allowance:
-			# create a random permutation
-			perm = np.random.permutation(ncities)
-			route = []
-			# Now build the route using the random permutation
-			for i in range(ncities):
-				route.append(cities[perm[i]])
-			bssf = TSPSolution(route)
-			count += 1
-			if bssf.cost < np.inf:
-				# Found a valid route
-				foundTour = True
-		end_time = time.time()
-		results['cost'] = bssf.cost if foundTour else math.inf
-		results['time'] = end_time - start_time
-		results['count'] = count
-		results['soln'] = bssf
-		results['max'] = None
-		results['total'] = None
-		results['pruned'] = None
-		return results
+    def defaultRandomTour(self, time_allowance=60.0):
+        results = {}
+        cities = self._scenario.getCities()
+        ncities = len(cities)
+        foundTour = False
+        count = 0
+        bssf = None
+        start_time = time.time()
+        while not foundTour and time.time() - start_time < time_allowance:
+            # create a random permutation
+            perm = np.random.permutation(ncities)
+            route = []
+            # Now build the route using the random permutation
+            for i in range(ncities):
+                route.append(cities[perm[i]])
+            bssf = TSPSolution(route)
+            count += 1
+            if bssf.cost < np.inf:
+                # Found a valid route
+                foundTour = True
+        end_time = time.time()
+        results['cost'] = bssf.cost if foundTour else math.inf
+        results['time'] = end_time - start_time
+        results['count'] = count
+        results['soln'] = bssf
+        results['max'] = None
+        results['total'] = None
+        results['pruned'] = None
+        return results
 
-	''' <summary>
+    ''' <summary>
 		This is the entry point for the greedy solver, which you must implement for 
 		the group project (but it is probably a good idea to just do it for the branch-and
 		bound project as a way to get your feet wet).  Note this could be used to find your
@@ -76,50 +76,51 @@ class TSPSolver:
 		algorithm</returns> 
 	'''
 
-	def greedy(self, time_allowance=60.0):
-		import time
-		results = {}
-		cities = self._scenario.getCities()
-		ncities = len(cities)
-		count = 0
-		startTime = time.time()
-		startNode = 0
-		bssf = None
-		foundTour = False
-		while foundTour is False and time.time() - startTime < time_allowance:
-			route = [cities[startNode]]
-			for i in range(ncities):
-				min = np.inf
-				nextNode = None
-				for j in range(ncities):
-					if cities[j] not in route:
-						length = route[i].costTo(cities[j])
-						if length < math.inf and length < min:
-							min = length
-							nextNode = cities[j]
-				if nextNode is not None:
-					route.append(nextNode)
-				else:
-					break
-			startNode += 1
-			if len(route) == ncities:
-				bssf = TSPSolution(route)
-				count += 1
-				if bssf.cost < np.inf:
-					foundTour = True
-		time = time.time() - startTime
-		results['cost'] = bssf.cost
-		results['time'] = time
-		results['count'] = count
-		results['soln'] = bssf
-		results['max'] = None
-		results['total'] = None
-		results['pruned'] = None
-		return results
+    def greedy(self, time_allowance=60.0):
+        import time
+        results = {}
+        cities = self._scenario.getCities()
+        ncities = len(cities)
+        count = 0
+        startTime = time.time()
+        startNode = 0
+        bssf = None
+        foundTour = False
+        while foundTour is False and time.time() - startTime < time_allowance:
+            route = [cities[startNode]]
+            for i in range(ncities):
+                min = np.inf
+                nextNode = None
+                for j in range(ncities):
+                    if cities[j] not in route:
+                        length = route[i].costTo(cities[j])
+                        if length < math.inf and length < min:
+                            min = length
+                            nextNode = cities[j]
+                if nextNode is not None:
+                    route.append(nextNode)
+                else:
+                    break
+            startNode += 1
+            if len(route) == ncities:
+                bssf = TSPSolution(route)
+                count += 1
+                if bssf.cost < np.inf:
+                    foundTour = True
 
-		pass
+        time = time.time() - startTime
+        print(bssf)
+        results['cost'] = bssf.cost
+        results['time'] = time
+        results['count'] = count
+        results['soln'] = bssf
+        results['max'] = None
+        results['total'] = None
+        results['pruned'] = None
+        return results
+        pass
 
-	''' <summary>
+    ''' <summary>
 		This is the entry point for the branch-and-bound algorithm that you will implement
 		</summary>
 		<returns>results dictionary for GUI that contains three ints: cost of best solution, 
@@ -128,10 +129,10 @@ class TSPSolver:
 		max queue size, total number of states created, and number of pruned states.</returns> 
 	'''
 
-	def branchAndBound(self, time_allowance=60.0):
-		pass
+    def branchAndBound(self, time_allowance=60.0):
+        pass
 
-	''' <summary>
+    ''' <summary>
 		This is the entry point for the algorithm you'll write for your group project.
 		</summary>
 		<returns>results dictionary for GUI that contains three ints: cost of best solution, 
@@ -140,5 +141,137 @@ class TSPSolver:
 		algorithm</returns> 
 	'''
 
-	def fancy(self, time_allowance=60.0):
-		pass
+    def fancy(self, time_allowance=60.0):
+        import time
+        startTime = time.time()
+        results = {}
+        pruned = 0
+        cities = self._scenario.getCities()
+        ncities = len(cities)
+        population1 = [self.greedy(time_allowance).get('soln')]
+        for y in range(ncities * 2):
+            population1 = np.append(population1, self.defaultRandomTour().get('soln'))
+        solutions = len(population1)
+        newPopulation = []
+        for i in range(6000):
+            minArray = []
+            # Selection
+            for j in range(len(population1)):
+                minArray.append(population1[j].cost)
+            minimum = min(minArray)
+            parent1 = 0
+            parent2 = 0
+            states = 0
+            print(minArray)
+            first = second = np.inf
+            firstIndex = 0
+            secondIndex = 0
+            for j in range(0, len(minArray)):
+                if minArray[j] < first:
+                    second = first
+                    first = minArray[j]
+                    firstIndex = j
+                elif minArray[j] < second:
+                    second = minArray[j]
+                    secondIndex = j
+            print("Parent1 Cost:")
+            parent1 = population1[firstIndex]
+            parent2 = population1[secondIndex]
+            print(parent1.cost)
+            print("Parent2 Cost:")
+            print(parent2.cost)
+            # Crossover
+            child1Route = parent1.route
+            child2Route = parent2.route
+            print("Starting crossover")
+            for j in range(0, ncities // 2):
+                point = random.randint(1, ncities - 1)
+                if point == child1Route[len(child1Route) - 1] or point == child2Route[len(child2Route) - 1]:
+                    point = random.randint(1, ncities - 1)
+
+                swap1Index = None
+                swap2Index = None
+                for x in range(0, len(child1Route)):
+
+                    if child1Route[x]._index == point:
+                        swap1Index = x
+
+                for x in range(0, len(child2Route)):
+
+                    if child2Route[x]._index == point:
+                        swap2Index = x
+                print(swap2Index)
+                child1Route[swap1Index], child1Route[swap2Index] = child1Route[swap2Index], child1Route[swap1Index]
+                child2Route[swap1Index], child2Route[swap2Index] = child2Route[swap2Index], child2Route[swap1Index]
+            print("start mutation")
+            # Mutation
+            index1 = random.randint(1, ncities - 2)
+            index2 = random.randint(1, ncities - 2)
+
+            print("indexes assigned")
+            child1Route[index1], child1Route[index2] = child1Route[index2], child1Route[index1]
+            child1 = TSPSolution(child1Route)
+
+            index1 = random.randint(1, ncities - 1)
+            index2 = random.randint(1, ncities - 1)
+
+            child2Route[index1], child2Route[index2] = child2Route[index2], child2Route[index1]
+            child2 = TSPSolution(child2Route)
+            for x in range(len(child2.route)):
+                print(child2.route[x]._index)
+            states += 2
+            print("Child1 Cost:")
+            print(child1.cost)
+            print("Child2 Cost:")
+            print(child2.cost)
+            print("Starting Pruning")
+            if child1.cost < parent1.cost or child1.cost < parent2.cost:
+                print("Child1 Added")
+                # find swap the least fit in the population array with child1
+                maxArray = []
+                for j in range(len(population1)):
+                    maxArray.append(population1[j].cost)
+                maximum = np.argmax(maxArray)
+                population1 = np.delete(population1, maximum)
+                population1 = np.append(population1, child1)
+                solutions += 1
+            elif child1.cost > parent1.cost and child1.cost > parent2.cost:
+                print("Child1 Pruned")
+                pruned += 1
+            if child2.cost < parent1.cost or child2.cost < parent2.cost:
+                print("Child2 Added")
+                # find swap the least fit in the population array with child1
+                maxArray = []
+                for j in range(len(population1)):
+                    maxArray.append(population1[j].cost)
+                maximum = np.argmax(maxArray)
+                population1 = np.delete(population1, maximum)
+                population1 = np.append(population1, child2)
+                solutions += 1
+            elif child2.cost > parent1.cost and child2.cost > parent2.cost:
+                print("Child2 Pruned")
+                pruned += 1
+        # Finding best solution
+        minArray = []
+        for j in range(len(population1)):
+            minArray.append(population1[j].cost)
+        print(minArray)
+        fittestIndex = np.argmin(minArray)
+        print(fittestIndex)
+        print(population1[fittestIndex].cost)
+        fittest = population1[fittestIndex]
+        if fittestIndex == 0:
+            fittest = self.greedy(time_allowance).get('soln')
+        for x in range(len(fittest.route)):
+            print(fittest.route[x]._index)
+        time = time.time() - startTime
+        results['cost'] = fittest.cost
+        results['time'] = time
+        results['count'] = solutions
+        results['soln'] = fittest
+        results['max'] = None
+        results['total'] = states
+        results['pruned'] = pruned
+        return results
+
+        pass
