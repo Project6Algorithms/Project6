@@ -149,10 +149,11 @@ class TSPSolver:
         cities = self._scenario.getCities()
         ncities = len(cities)
         population1 = []
-        for y in range(ncities - 1 // 4):
-            population1 = np.append(population1, self.greedy(time_allowance).get('soln'))
-        for z in range(ncities -1 // 4):
+        for y in range(ncities - 1):
             population1 = np.append(population1, self.defaultRandomTour(time_allowance).get('soln'))
+        #for z in range(ncities -1 // 4):
+        #    population1 = np.append
+        #    (population1, self.defaultRandomTour(time_allowance).get('soln'))
         solutions = len(population1)
         newPopulation = []
         minArray = []
@@ -184,7 +185,7 @@ class TSPSolver:
         newPopulation = []
         newPopulation = np.append(newPopulation, parent1)
         newPopulation = np.append(newPopulation, parent2)
-        while newPopulation != population1 and time.time() - startTime < time_allowance:
+        while len(population1) > len(newPopulation) and time.time() - startTime < time_allowance:
             minArray = []
             # Selection
             parent1 = 0
@@ -224,13 +225,14 @@ class TSPSolver:
                 child1Route[swap1Index], child1Route[swap2Index] = child1Route[swap2Index], child1Route[swap1Index]
                 child2Route[swap1Index], child2Route[swap2Index] = child2Route[swap2Index], child2Route[swap1Index]
             # Mutation
-            index1 = random.randint(1, ncities - 2)
-            index2 = random.randint(1, ncities - 2)
+            index1 = random.randint(1, ncities - 3)
+            #Check for adjacency
+            index2 = random.randint(1, ncities - 3)
             child1Route[index1], child1Route[index2] = child1Route[index2], child1Route[index1]
             child1 = TSPSolution(child1Route)
 
-            index1 = random.randint(1, ncities - 1)
-            index2 = random.randint(1, ncities - 1)
+            index1 = random.randint(1, ncities - 3)
+            index2 = random.randint(1, ncities - 3)
 
             child2Route[index1], child2Route[index2] = child2Route[index2], child2Route[index1]
             child2 = TSPSolution(child2Route)
@@ -253,6 +255,10 @@ class TSPSolver:
             print(array)
             fittestIndex = np.argmin(array)
             fittest = newPopulation[fittestIndex]
+            for x in range(len(fittest.route)):
+                print(fittest.route[x]._index)
+            print(len(newPopulation))
+            print(len(population1))
         # Finding best solution
 
         time = time.time() - startTime
