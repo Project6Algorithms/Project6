@@ -107,7 +107,9 @@ class TSPSolver:
 				count += 1
 				if bssf.cost < np.inf:
 					foundTour = True
+
 		time = time.time() - startTime
+		print(bssf)
 		results['cost'] = bssf.cost
 		results['time'] = time
 		results['count'] = count
@@ -140,15 +142,17 @@ class TSPSolver:
 	'''
 
 	def fancy(self, time_allowance=60.0):
-
+		import time
 		startTime = time.time()
-		result = {}
+		results = {}
+		pruned = 0
 		cities = self._scenario.getCities()
 		ncities = len(cities)
-		population1 = [self.greedy(time_allowance).get('soln'), self.defaultRandomTour(time_allowance).get('soln'), self.defaultRandomTour(time_allowance).get('soln'), self.defaultRandomTour(time_allowance).get('soln'), self.defaultRandomTour(time_allowance).get('soln'), self.defaultRandomTour(time_allowance).get('soln')]
-
-		for i in range(ncities):
-			newPopulation = [] # Not sure if i'll usethis
+		population1 = [self.greedy(time_allowance).get('soln')]
+		for y in range(ncities * 2):
+			population1 = np.append(population1, self.defaultRandomTour().get('soln'))
+		solutions = len(population1)
+		for i in range(5000):
 			minArray = []
 			#Selection
 			for j in range(len(population1)):
@@ -156,6 +160,7 @@ class TSPSolver:
 			minimum = min(minArray)
 			parent1 = 0
 			parent2 = 0
+			states = 0
 			print(minArray)
 			first = second = np.inf
 			firstIndex = 0
@@ -168,61 +173,100 @@ class TSPSolver:
 				elif minArray[j] < second:
 					second = minArray[j]
 					secondIndex = j
-			print(firstIndex)
-			print(secondIndex)
+			print("Parent1 Cost:")
 			parent1 = population1[firstIndex]
 			parent2 = population1[secondIndex]
 			print(parent1.cost)
+			print("Parent2 Cost:")
 			print(parent2.cost)
 			# Crossover
 			child1Route = parent1.route
 			child2Route = parent2.route
+			print("Starting crossover")
+			for j in range(0, ncities // 4):
+				point = random.randint(1, ncities - 1)
 
-			for j in range(0, ((ncities - 1) // 2)):
-				point = random.randint(1, ncities - 2)
-				while point == child1Route[ncities - 1]._index or point == child2Route[ncities - 1]._index:
-					point = random.randint(1, ncities - 1)
-				print("test")
-				print(point)
-				print(child1Route)
+
+				swap1Index = None
+				swap2Index = None
 				for x in range(0, len(child1Route)):
-					if child1Route[x]._index == point:
-						print("1 index updated")
-						swap1Index = x
-					elif child2Route[x]._index == point:
-						print("2 index updated")
-						swap2Index = x
-				print("test")
-				print(swap1Index)
-				print(swap2Index)
 
-				print("Original:")
-				for x in range(len(child1Route)):
-					print(child1Route[x]._index)
+					if child1Route[x]._index == point:
+
+						swap1Index = x
+
+				for x in range(0, len(child2Route)):
+
+					if child2Route[x]._index == point:
+						swap2Index = x
+				print(swap2Index)
 				child1Route[swap1Index], child1Route[swap2Index] = child1Route[swap2Index], child1Route[swap1Index]
 				child2Route[swap1Index], child2Route[swap2Index] = child2Route[swap2Index], child2Route[swap1Index]
-
-				print("New: ")
-				for x in range(len(child1Route)):
-					print(child1Route[x]._index)
-
+			print("start mutation")
 			# Mutation
 			index1 = random.randint(1, ncities - 2)
 			index2 = random.randint(1, ncities - 2)
-			while index2 == index2:
-				index2 = random.randint(1, ncities - 2)
+
+
+			print("indexes assigned")
 			child1Route[index1], child1Route[index2] = child1Route[index2], child1Route[index1]
 			child1 = TSPSolution(child1Route)
 
-			index1 = random.randint(1, ncities - 2)
-			index2 = random.randint(1, ncities - 2)
-			while index2 == index2:
-				index2 = random.randint(1, ncities - 2)
+			index1 = random.randint(1, ncities - 1)
+			index2 = random.randint(1, ncities - 1)
+
 			child2Route[index1], child2Route[index2] = child2Route[index2], child2Route[index1]
 			child2 = TSPSolution(child2Route)
+			states += 2
+			print("Child1 Cost:")
 			print(child1.cost)
+			print("Child2 Cost:")
 			print(child2.cost)
-
+			print("Starting Pruning")
+			if child1.cost < parent1.cost or child1.cost < parent2.cost:
+				print("Child1 Added")
+				#find swap the least fit in the population array with child1
+				maxArray = []
+				for j in range(len(population1)):
+					maxArray.append(population1[j].cost)
+				maximum = np.argmax(maxArray)
+				population1 = np.delete(population1, maximum)
+				population1 = np.append(population1, child1)
+				solutions += 1
+			elif child1.cost > parent1.cost and child1.cost > parent2.cost:
+				print("Child1 Pruned")
+				pruned += 1
+			if child2.cost < parent1.cost or child2.cost < parent2.cost:
+				print("Child2 Added")
+				#find swap the least fit in the population array with child1
+				maxArray = []
+				for j in range(len(population1)):
+					maxArray.append(population1[j].cost)
+				maximum = np.argmax(maxArray)
+				population1 = np.delete(population1, maximum)
+				population1 = np.append(population1, child2)
+				solutions += 1
+			elif child2.cost > parent1.cost and child2.cost > parent2.cost:
+				print("Child2 Pruned")
+				pruned += 1
+		# Finding best solution
+		minArray = []
+		for j in range(len(population1)):
+			minArray.append(population1[j].cost)
+		print(minArray)
+		fittestIndex = np.argmin(minArray)
+		print(fittestIndex)
+		print(population1[fittestIndex].cost)
+		fittest = population1[fittestIndex]
+		time = time.time() - startTime
+		results['cost'] = fittest.cost
+		results['time'] = time
+		results['count'] = solutions
+		results['soln'] = fittest
+		results['max'] = None
+		results['total'] = states
+		results['pruned'] = pruned
+		return results
 
 
 
