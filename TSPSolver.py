@@ -116,7 +116,6 @@ class TSPSolver:
 		results['total'] = None
 		results['pruned'] = None
 		return results
-
 		pass
 
 	''' <summary>
@@ -141,4 +140,31 @@ class TSPSolver:
 	'''
 
 	def fancy(self, time_allowance=60.0):
+
+		startTime = time.time()
+		result = {}
+		cities = self._scenario.getCities()
+		ncities = len(cities)
+		population1 = [self.greedy(time_allowance).get('soln'), self.defaultRandomTour(time_allowance).get('soln'), self.defaultRandomTour(time_allowance).get('soln'), self.defaultRandomTour(time_allowance).get('soln'), self.defaultRandomTour(time_allowance).get('soln'), self.defaultRandomTour(time_allowance).get('soln')]
+
+		for i in range(ncities):
+			newPopulation = [] # Not sure if i'll usethis
+			minArray = []
+			#Selection
+			for j in range(len(population1)):
+				minArray.append(population1[j].cost)
+			minimum = min(minArray)
+			parent1 = 0
+			parent2 = 0
+			minIndex1 = np.argmin(minArray)
+			minArray = np.delete(minArray, minIndex1)
+			minIndex2 = np.argmin(minArray) + 1
+			parent1 = population1[minIndex1]
+			parent2 = population1[minIndex2]
+			print(parent1.cost)
+			print(parent2.cost)
+
+
+
+
 		pass
