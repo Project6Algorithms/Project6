@@ -163,8 +163,31 @@ class TSPSolver:
 			parent2 = population1[minIndex2]
 			print(parent1.cost)
 			print(parent2.cost)
+			# Crossover
+			child1Route = parent1.route
+			child2Route = parent2.route
 
+			point = random.randint(1, ncities)
+			print("test")
 
+			for x in range(len(child1Route)):
+				if child1Route[x]._index == point:
+					swap1Index = x
+				elif child2Route[x]._index == point:
+					swap2Index = x
+			print(swap1Index)
+			print(swap2Index)
+
+			print("Original:")
+			for x in range(len(child1Route)):
+				print(child1Route[x]._index)
+			child1Route[swap1Index], child1Route[swap2Index] = child1Route[swap2Index], child1Route[swap1Index]
+			child2Route[swap1Index], child2Route[swap2Index] = child2Route[swap2Index], child2Route[swap1Index]
+			child1 = TSPSolution(child1Route)
+			child2 = TSPSolution(child2Route)
+			print("New: ")
+			for x in range(len(child1Route)):
+				print(child1Route[x]._index)
 
 
 		pass
