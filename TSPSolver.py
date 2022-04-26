@@ -156,38 +156,76 @@ class TSPSolver:
 			minimum = min(minArray)
 			parent1 = 0
 			parent2 = 0
-			minIndex1 = np.argmin(minArray)
-			minArray = np.delete(minArray, minIndex1)
-			minIndex2 = np.argmin(minArray) + 1
-			parent1 = population1[minIndex1]
-			parent2 = population1[minIndex2]
+			print(minArray)
+			first = second = np.inf
+			firstIndex = 0
+			secondIndex = 0
+			for j in range(0, len(minArray)):
+				if minArray[j] < first:
+					second = first
+					first = minArray[j]
+					firstIndex = j
+				elif minArray[j] < second:
+					second = minArray[j]
+					secondIndex = j
+			print(firstIndex)
+			print(secondIndex)
+			parent1 = population1[firstIndex]
+			parent2 = population1[secondIndex]
 			print(parent1.cost)
 			print(parent2.cost)
 			# Crossover
 			child1Route = parent1.route
 			child2Route = parent2.route
 
-			point = random.randint(1, ncities)
-			print("test")
+			for j in range(0, ((ncities - 1) // 2)):
+				point = random.randint(1, ncities - 2)
+				while point == child1Route[ncities - 1]._index or point == child2Route[ncities - 1]._index:
+					point = random.randint(1, ncities - 1)
+				print("test")
+				print(point)
+				print(child1Route)
+				for x in range(0, len(child1Route)):
+					if child1Route[x]._index == point:
+						print("1 index updated")
+						swap1Index = x
+					elif child2Route[x]._index == point:
+						print("2 index updated")
+						swap2Index = x
+				print("test")
+				print(swap1Index)
+				print(swap2Index)
 
-			for x in range(len(child1Route)):
-				if child1Route[x]._index == point:
-					swap1Index = x
-				elif child2Route[x]._index == point:
-					swap2Index = x
-			print(swap1Index)
-			print(swap2Index)
+				print("Original:")
+				for x in range(len(child1Route)):
+					print(child1Route[x]._index)
+				child1Route[swap1Index], child1Route[swap2Index] = child1Route[swap2Index], child1Route[swap1Index]
+				child2Route[swap1Index], child2Route[swap2Index] = child2Route[swap2Index], child2Route[swap1Index]
 
-			print("Original:")
-			for x in range(len(child1Route)):
-				print(child1Route[x]._index)
-			child1Route[swap1Index], child1Route[swap2Index] = child1Route[swap2Index], child1Route[swap1Index]
-			child2Route[swap1Index], child2Route[swap2Index] = child2Route[swap2Index], child2Route[swap1Index]
+				print("New: ")
+				for x in range(len(child1Route)):
+					print(child1Route[x]._index)
+
+			# Mutation
+			index1 = random.randint(1, ncities - 2)
+			index2 = random.randint(1, ncities - 2)
+			while index2 == index2:
+				index2 = random.randint(1, ncities - 2)
+			child1Route[index1], child1Route[index2] = child1Route[index2], child1Route[index1]
 			child1 = TSPSolution(child1Route)
+
+			index1 = random.randint(1, ncities - 2)
+			index2 = random.randint(1, ncities - 2)
+			while index2 == index2:
+				index2 = random.randint(1, ncities - 2)
+			child2Route[index1], child2Route[index2] = child2Route[index2], child2Route[index1]
 			child2 = TSPSolution(child2Route)
-			print("New: ")
-			for x in range(len(child1Route)):
-				print(child1Route[x]._index)
+			print(child1.cost)
+			print(child2.cost)
+
+
+
+
 
 
 		pass
