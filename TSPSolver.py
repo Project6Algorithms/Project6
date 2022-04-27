@@ -109,7 +109,7 @@ class TSPSolver:
                     foundTour = True
 
         time = time.time() - startTime
-        print(bssf)
+
         results['cost'] = bssf.cost
         results['time'] = time
         results['count'] = count
@@ -130,6 +130,71 @@ class TSPSolver:
 	'''
 
     def branchAndBound(self, time_allowance=60.0):
+        results = {}
+        cities = self._scenario.getCities()
+        ncities = len(cities)
+        foundTour = False
+        count = 0
+        bssf = self.defaultRandomTour(time_allowance=60.0)['soln']
+        pruned = 0
+        max_q_size = 0
+        num_states = 0
+        Q = []
+        start_time = time.time()
+
+        matrix = np.empty(shape=(len(cities), len(cities)), dtype=float)
+
+        root = TSPNode(0, matrix, [], 0)
+
+        # Distances
+        for i, c1 in enumerate(cities):
+            for j, c2 in enumerate(cities):
+                root.m[i, j] = c1.costTo(c2)
+
+        root.reduceMatrix(0, 0)
+        root.addCityAndUpdateCost(cities[0])
+
+        # Adding the heap
+        heapq.heappush(Q, root)
+
+        while len(Q) != 0 and time.time() - start_time < time_allowance:
+            node = heapq.heappop(Q)
+
+            for i, dist in enumerate(node.m[node.city._index]):
+                num_states += 1
+
+                if dist != np.inf and cities[i] not in node.route:  # Unvisited cities
+
+                    # Nodes creation
+                    next_node = TSPNode(node.lower_bound, np.copy(node.m), node.route.copy(), node.cost)
+                    next_node.addCityAndUpdateCost(cities[i])
+                    next_node.reduceMatrix(node.city._index, next_node.city._index)
+
+                    if len(next_node.route) == len(
+                            cities):  # Checks to see if all cities has been visited and is accounted for in the travel
+                        solution = TSPSolution(next_node.route)
+
+                        if solution.cost < bssf.cost:
+                            count += 1
+                            bssf = solution  # Check bssf for the tour
+                    else:  # And if the solution isn't the best cost
+
+                        if next_node.lower_bound < bssf.cost:
+                            heapq.heappush(Q, next_node)
+                            max_q_size = max(max_q_size, len(Q))
+                        else:
+                            pruned += 1  # To see if pruning is necessary
+
+        end_time = time.time()
+        results['cost'] = bssf.cost
+        results['time'] = end_time - start_time
+        results['count'] = count
+        results['soln'] = bssf
+        results['max'] = max_q_size
+        results['total'] = num_states
+        results['pruned'] = pruned
+        return results
+
         pass
 
     ''' <summary>
