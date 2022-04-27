@@ -148,7 +148,7 @@ class TSPSolver:
         pruned = 0
         cities = self._scenario.getCities()
         ncities = len(cities)
-        population1 = []
+        population1 = [self.greedy(time_allowance).get('soln')]
         for y in range(ncities - 1):
             population1 = np.append(population1, self.defaultRandomTour(time_allowance).get('soln'))
         #for z in range(ncities -1 // 4):
@@ -164,7 +164,7 @@ class TSPSolver:
         parent1 = 0
         parent2 = 0
         states = 0
-        print(minArray)
+        #print(minArray)
         first = second = np.inf
         firstIndex = 0
         secondIndex = 0
@@ -176,12 +176,12 @@ class TSPSolver:
             elif minArray[j] < second:
                 second = minArray[j]
                 secondIndex = j
-        print("Parent1 Cost:")
+        #print("Parent1 Cost:")
         parent1 = population1[firstIndex]
         parent2 = population1[secondIndex]
-        print(parent1.cost)
-        print("Parent2 Cost:")
-        print(parent2.cost)
+        #print(parent1.cost)
+        #print("Parent2 Cost:")
+        #print(parent2.cost)
         newPopulation = []
         newPopulation = np.append(newPopulation, parent1)
         newPopulation = np.append(newPopulation, parent2)
@@ -190,7 +190,9 @@ class TSPSolver:
             # Selection
             parent1 = 0
             parent2 = 0
-            states = 0
+
+            for j in range(len(newPopulation)):
+                minArray.append(newPopulation[j].cost)
             first = second = np.inf
             firstIndex = 0
             secondIndex = 0
@@ -202,6 +204,14 @@ class TSPSolver:
                 elif minArray[j] < second:
                     second = minArray[j]
                     secondIndex = j
+            parent1 = newPopulation[firstIndex]
+            parent2 = newPopulation[secondIndex]
+            #print("Parent 1:")
+            #print(parent1.cost)
+            #print(firstIndex)
+            #print("Parent 2:")
+            #print(parent2.cost)
+            #print(secondIndex)
             parent1 = newPopulation[firstIndex]
             parent2 = newPopulation[secondIndex]
             # Crossover
@@ -252,13 +262,10 @@ class TSPSolver:
             array = []
             for x in range(len(newPopulation)):
                 array = np.append(array, newPopulation[x].cost)
-            print(array)
+            #print(array)
             fittestIndex = np.argmin(array)
             fittest = newPopulation[fittestIndex]
-            for x in range(len(fittest.route)):
-                print(fittest.route[x]._index)
-            print(len(newPopulation))
-            print(len(population1))
+
         # Finding best solution
 
         time = time.time() - startTime
