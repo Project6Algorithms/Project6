@@ -186,4 +186,49 @@ class City:
 
 
 		return int(math.ceil(cost * self.MAP_SCALE))
+class TSPNode:
+    def __init__(self, lower_bound, m, route, parent_cost):
+        self.route = route
+        self.cost = parent_cost
+        self.lower_bound = lower_bound
+        self.m = m
+        return
+
+    def __lt__(self, other):
+        return self.lower_bound / len(self.route) < other.lower_bound / len(other.route)
+
+    def reduceMatrix(self, c1, c2):
+        # inf out the correct col and row. also the individual cell. Update lower bound
+        if len(self.route) != 0:
+            # Add val to lower bound
+            self.lower_bound += self.m[c1][c2]
+            # Remove yx value as well
+            self.m[c2][c1] = np.inf
+            # inf out the correct row/column
+            self.m[c1] = [np.inf] * np.shape(self.m)[0]
+            self.m[:, c2] = [np.inf] * np.shape(self.m)[0]
+
+        # Reduce rows
+        for i, row in enumerate(self.m):
+            if 0 not in row and False in np.isinf(row):
+                min_val = np.min(row)
+                self.m[i] = [x - min_val for x in row]
+                self.lower_bound += min_val
+
+        # Reduce columns
+        for i in range(len(self.m)):
+            col = self.m[:, i]
+            if 0 not in col and False in np.isinf(col):
+                min_val = np.min(col)
+                self.m[:, i] = [x - min_val for x in col]
+                self.lower_bound += min_val
+
+    def addCityAndUpdateCost(self, city):
+        self.city = city
+        self.route.append(city)
+
+        if len(self.route) == 1:
+            self.cost = 0
+        else:
+            self.cost += self.route[-2].costTo(self.city)
 
