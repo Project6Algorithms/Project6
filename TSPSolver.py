@@ -216,9 +216,6 @@ class TSPSolver:
         population1 = [self.greedy(time_allowance).get('soln')]
         for y in range(ncities - 1):
             population1 = np.append(population1, self.defaultRandomTour(time_allowance).get('soln'))
-        #for z in range(ncities -1 // 4):
-        #    population1 = np.append
-        #    (population1, self.defaultRandomTour(time_allowance).get('soln'))
         solutions = len(population1)
         newPopulation = []
         minArray = []
@@ -226,8 +223,6 @@ class TSPSolver:
         for j in range(len(population1)):
             minArray.append(population1[j].cost)
         minimum = min(minArray)
-        parent1 = 0
-        parent2 = 0
         states = 0
         #print(minArray)
         first = second = np.inf
@@ -241,12 +236,10 @@ class TSPSolver:
             elif minArray[j] < second:
                 second = minArray[j]
                 secondIndex = j
-        #print("Parent1 Cost:")
+
         parent1 = population1[firstIndex]
         parent2 = population1[secondIndex]
-        #print(parent1.cost)
-        #print("Parent2 Cost:")
-        #print(parent2.cost)
+
         newPopulation = []
         newPopulation = np.append(newPopulation, parent1)
         newPopulation = np.append(newPopulation, parent2)
@@ -271,14 +264,6 @@ class TSPSolver:
                     secondIndex = j
             parent1 = newPopulation[firstIndex]
             parent2 = newPopulation[secondIndex]
-            #print("Parent 1:")
-            #print(parent1.cost)
-            #print(firstIndex)
-            #print("Parent 2:")
-            #print(parent2.cost)
-            #print(secondIndex)
-            parent1 = newPopulation[firstIndex]
-            parent2 = newPopulation[secondIndex]
             # Crossover
             child1Route = parent1.route
             child2Route = parent2.route
@@ -301,7 +286,6 @@ class TSPSolver:
                 child2Route[swap1Index], child2Route[swap2Index] = child2Route[swap2Index], child2Route[swap1Index]
             # Mutation
             index1 = random.randint(1, ncities - 3)
-            #Check for adjacency
             index2 = random.randint(1, ncities - 3)
             child1Route[index1], child1Route[index2] = child1Route[index2], child1Route[index1]
             child1 = TSPSolution(child1Route)
@@ -313,13 +297,13 @@ class TSPSolver:
             child2 = TSPSolution(child2Route)
             states += 2
             if child1.cost < parent1.cost or child1.cost < parent2.cost:
-                # find swap the least fit in the population array with child1
+                # Add to new population
                 newPopulation = np.append(population1, child1)
                 solutions += 1
             elif child1.cost > parent1.cost and child1.cost > parent2.cost:
                 pruned += 1
             if child2.cost < parent1.cost or child2.cost < parent2.cost:
-                # find swap the least fit in the population array with child1
+                # Add to new population
                 newPopulation = np.append(newPopulation, child2)
                 solutions += 1
             elif child2.cost > parent1.cost and child2.cost > parent2.cost:
